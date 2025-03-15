@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+<<<<<<< HEAD
+=======
+.DS_Store
+>>>>>>> 069cde8 (Ignore .DS_Store files)

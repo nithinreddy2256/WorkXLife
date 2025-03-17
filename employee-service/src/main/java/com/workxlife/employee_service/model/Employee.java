@@ -23,4 +23,28 @@ public class Employee {
     private String email;
 
     private String department;
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
+    }
 }

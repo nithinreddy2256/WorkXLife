@@ -4,6 +4,11 @@ import com.workxlife.employee_service.exception.EmployeeNotFoundException;
 import com.workxlife.employee_service.model.Employee;
 import com.workxlife.employee_service.repository.EmployeeRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;      // ✅ Import Page
+import org.springframework.data.domain.Pageable; // ✅ Import Pageable
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -38,14 +43,55 @@ public class EmployeeServiceImp implements EmployeeService {
     }
 
     @Override
+    public List<Employee> searchEmployeesByFirstName(String firstName) {
+        return employeeRepository.findByFirstName(firstName);
+    }
+
+    @Override
+    public List<Employee> searchEmployeesByDepartment(String department) {
+        return employeeRepository.findByDepartmentIgnoreCase(department);
+    }
+
+    @Override
+    public Page<Employee> getAllEmployeesPaginated(Pageable pageable) {
+        return employeeRepository.findAll(pageable);
+    }
+
+
+    @Override
     public Employee updateEmployee(Long id, Employee updatedEmployee) {
         Employee existingEmployee = employeeRepository.findById(id)
                 .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
-        existingEmployee.setName(updatedEmployee.getName());
-        existingEmployee.setEmail(updatedEmployee.getEmail());
-        existingEmployee.setDepartment(updatedEmployee.getDepartment());
+
+        // ✅ Check if the new email is different and already exists for another employee
+        if (updatedEmployee.getEmail() != null && !updatedEmployee.getEmail().equals(existingEmployee.getEmail())) {
+            Optional<Employee> employeeWithEmail = employeeRepository.findByEmail(updatedEmployee.getEmail());
+            if (employeeWithEmail.isPresent() && !employeeWithEmail.get().getId().equals(existingEmployee.getId())) {
+                throw new RuntimeException("Email is already taken by another employee.");
+            }
+        }
+
+        if (updatedEmployee.getFirstName() != null) {
+            existingEmployee.setFirstName(updatedEmployee.getFirstName());
+        }
+        if (updatedEmployee.getMiddleName() != null) {
+            existingEmployee.setMiddleName(updatedEmployee.getMiddleName());
+        }
+        if (updatedEmployee.getLastName() != null) {
+            existingEmployee.setLastName(updatedEmployee.getLastName());
+        }
+        if (updatedEmployee.getEmail() != null) {
+            existingEmployee.setEmail(updatedEmployee.getEmail());
+        }
+        if (updatedEmployee.getDepartment() != null) {
+            existingEmployee.setDepartment(updatedEmployee.getDepartment());
+        }
+
         return employeeRepository.save(existingEmployee);
     }
+
+
+
 
     @Override
     public void deleteEmployee(Long id) {

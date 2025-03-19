@@ -4,6 +4,11 @@ import com.workxlife.employee_service.model.Employee;
 import com.workxlife.employee_service.service.EmployeeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Collections;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -34,11 +39,39 @@ public class EmployeeController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Employee>> searchEmployees(
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String department) {
+
+        if (firstName != null) {
+            return ResponseEntity.ok(employeeService.searchEmployeesByFirstName(firstName));
+        } else if (department != null) {
+            return ResponseEntity.ok(employeeService.searchEmployeesByDepartment(department));
+        } else {
+            return ResponseEntity.badRequest().body(Collections.emptyList());
+        }
+    }
+
+
     @GetMapping("/email/{email}")
     public ResponseEntity<Employee> getEmployeeByEmail(@PathVariable String email) {
         return employeeService.getEmployeeByEmail(email)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<Employee>> getAllEmployeesPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection) {
+
+        Sort sort = sortDirection.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        return ResponseEntity.ok(employeeService.getAllEmployeesPaginated(pageable));
     }
 
     @PutMapping("/{id}")

@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import io.jsonwebtoken.JwtException;
 
 import java.io.IOException;
 import java.util.List;
@@ -28,23 +29,35 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
-        String username = null;
-        String jwt = null;
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwt = authHeader.substring(7);
-            username = jwtUtil.extractUsername(jwt);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);  // No token — skip
+            return;
         }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            if (jwtUtil.validateToken(jwt)) {
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(username, null,
-                                List.of(new SimpleGrantedAuthority("ROLE_USER"))); // Basic default authority
+        String jwt = authHeader.substring(7);
 
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+        try {
+            String username = jwtUtil.extractUsername(jwt);
+
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                if (jwtUtil.validateToken(jwt)) {
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    username,
+                                    null,
+                                    List.of(new SimpleGrantedAuthority("ROLE_USER")) // Default role
+                            );
+
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+
+        } catch (JwtException e) {
+            System.err.println(" Invalid JWT: " + e.getMessage());
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return;
         }
 
         filterChain.doFilter(request, response);

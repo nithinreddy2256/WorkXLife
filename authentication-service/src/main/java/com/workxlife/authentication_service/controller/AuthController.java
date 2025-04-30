@@ -4,8 +4,10 @@ import com.workxlife.authentication_service.entity.Role;
 import com.workxlife.authentication_service.entity.User;
 import com.workxlife.authentication_service.repository.RoleRepository;
 import com.workxlife.authentication_service.repository.UserRepository;
+//import com.workxlife.authentication_service.repository.EmployeeRepository;
+//import com.workxlife.authentication_service.entity.Employee;
 import com.workxlife.authentication_service.security.JwtUtil;
-import com.workxlife.authentication_service.security.CustomUserDetails;
+import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
@@ -27,6 +29,9 @@ public class AuthController {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    //@Autowired
+   // private EmployeeRepository employeeRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -70,17 +75,25 @@ public class AuthController {
         String password = request.get("password");
 
         try {
-            authenticationManager.authenticate(
+            Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password)
             );
+
+            // Get the authenticated user
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+
+            User user = userRepository.findByUsername(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+
+            String token = jwtUtil.generateTokenFromEmail(user.getEmail());
+
+            // Return token
+            return ResponseEntity.ok(Map.of("token", token));
+
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).body("Invalid credentials");
         }
-
-        User user = userRepository.findByUsername(username).orElseThrow();
-        UserDetails userDetails = new CustomUserDetails(user);
-
-        String token = jwtUtil.generateToken(userDetails);
-        return ResponseEntity.ok(Map.of("token", token));
     }
 }

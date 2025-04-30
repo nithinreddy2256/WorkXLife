@@ -1,7 +1,5 @@
 package com.workxlife.job_service.service;
 
-import com.workxlife.job_service.dto.Notification;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.workxlife.job_service.dto.Notification;
 import com.workxlife.job_service.entity.Job;
@@ -10,9 +8,10 @@ import com.workxlife.job_service.repository.JobRepository;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.workxlife.job_service.util.JwtEmailExtractor;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class JobService {
@@ -23,6 +22,8 @@ public class JobService {
     @Autowired
     private JobRepository jobRepository;
 
+    @Autowired
+    private HttpServletRequest request;
 
     public List<Job> getAllJobs() {
         return jobRepository.findAll();
@@ -48,9 +49,11 @@ public class JobService {
         Job savedJob = jobRepository.save(job);
 
         try {
+            String email = JwtEmailExtractor.extractEmail(request);
+
             Notification notification = new Notification();
-            notification.setRecipientId(101L);
-            notification.setRecipientEmail("testuser@example.com");
+            notification.setRecipientId(101L); // (optional, if known)
+            notification.setRecipientEmail(email); // ✅ dynamic
             notification.setMessage("New job posted: " + savedJob.getTitle());
             notification.setType("EMAIL");
 

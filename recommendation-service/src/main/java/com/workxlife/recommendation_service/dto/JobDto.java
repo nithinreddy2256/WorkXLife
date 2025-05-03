@@ -1,12 +1,11 @@
 package com.workxlife.recommendation_service.dto;
 
-import lombok.Data;
 import java.util.List;
 
-@Data
 public class JobDto {
     private Long id;
     private String title;
+    private String description; // ✅ Added
     private List<String> requiredSkills;
 
     // Getters
@@ -16,6 +15,10 @@ public class JobDto {
 
     public String getTitle() {
         return title;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public List<String> getRequiredSkills() {
@@ -31,9 +34,11 @@ public class JobDto {
         this.title = title;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public void setRequiredSkills(List<String> requiredSkills) {
         this.requiredSkills = requiredSkills;
     }
-
 }
-

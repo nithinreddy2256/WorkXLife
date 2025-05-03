@@ -6,12 +6,17 @@ import java.util.List;
 @Data
 public class EmployeeProfileDto {
     private String name;
+    private String email;  // ✅ Add this
     private List<String> skills;
     private int experienceYears;
 
     // Getters
     public String getName() {
         return name;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public List<String> getSkills() {
@@ -27,6 +32,10 @@ public class EmployeeProfileDto {
         this.name = name;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public void setSkills(List<String> skills) {
         this.skills = skills;
     }
@@ -35,4 +44,3 @@ public class EmployeeProfileDto {
         this.experienceYears = experienceYears;
     }
 }
-

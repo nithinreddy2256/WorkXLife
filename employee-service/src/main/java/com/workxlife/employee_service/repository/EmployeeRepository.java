@@ -12,10 +12,10 @@ import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+
     @Query("SELECT e FROM Employee e WHERE LOWER(e.email) = LOWER(:email)")
     Optional<Employee> findByEmail(@Param("email") String email);
 
-    Optional<Employee> findByUsername(@Param("username") String username);
 
     // Search employees by first name (case-insensitive)
     @Query("SELECT e FROM Employee e WHERE LOWER(e.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))")

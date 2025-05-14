@@ -18,5 +18,4 @@ public interface EmployeeService {
     List<Employee> searchEmployeesByDepartment(String department);
     Page<Employee> getAllEmployeesPaginated(Pageable pageable);
 
-
 }

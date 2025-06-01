@@ -42,7 +42,7 @@ public class ApplicationServiceImpl {
 
             Notification notification = new Notification();
             notification.setRecipientId(application.getApplicantId());
-            notification.setRecipientEmail(email); // ✅ dynamically extracted
+            notification.setRecipientEmail(email);
             notification.setMessage("You successfully applied for Job ID: " + application.getJob().getId());
             notification.setType("EMAIL");
 

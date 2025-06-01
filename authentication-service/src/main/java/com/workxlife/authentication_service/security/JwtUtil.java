@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Component
 public class JwtUtil {
 
-    private final String SECRET = "mysecretkeymysecretkeymysecretkey12345"; // Must be 32+ chars
+    private final String SECRET = "mysecretkeymysecretkeymysecretkey12345";
     private final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 hours
 
     @Autowired
@@ -27,7 +27,7 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
 
-    // 🔐 Token with roles (used when UserDetails is available)
+
     public String generateToken(UserDetails userDetails) {
         List<String> roles = userDetails.getAuthorities()
                 .stream()

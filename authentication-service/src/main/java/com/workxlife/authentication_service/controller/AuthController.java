@@ -1,20 +1,22 @@
 package com.workxlife.authentication_service.controller;
 
+import com.workxlife.authentication_service.dto.AuthRequest;
 import com.workxlife.authentication_service.entity.Role;
-import com.workxlife.authentication_service.entity.User;
 import com.workxlife.authentication_service.repository.RoleRepository;
 import com.workxlife.authentication_service.repository.UserRepository;
-//import com.workxlife.authentication_service.repository.EmployeeRepository;
-//import com.workxlife.authentication_service.entity.Employee;
 import com.workxlife.authentication_service.security.JwtUtil;
-import org.springframework.security.core.Authentication;
+import com.workxlife.authentication_service.entity.User;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import com.workxlife.authentication_service.dto.EmployeeDto;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
@@ -35,14 +37,11 @@ public class AuthController {
     @Autowired
     private RestTemplate restTemplate;
 
-    //@Autowired
-   // private EmployeeRepository employeeRepository;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtUtil jwtUtil;
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody Map<String, String> request) {
@@ -50,7 +49,6 @@ public class AuthController {
         String email = request.get("email");
         String password = request.get("password");
         String roleName = request.get("role");
-
 
         String firstName = request.getOrDefault("firstName", username);
         String middleName = request.getOrDefault("middleName", "");
@@ -97,9 +95,21 @@ public class AuthController {
         return ResponseEntity.ok("User registered successfully");
     }
 
+    @PostMapping("/internal-auth")
+    public ResponseEntity<Map<String, String>> generateInternalToken(@RequestBody AuthRequest request) {
+        if (!request.getUsername().equals("internal-service") || !request.getPassword().equals("super-secret")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                "internal-service",
+                "",
+                List.of(new SimpleGrantedAuthority("ROLE_INTERNAL_SERVICE"))
+        );
 
-
+        String token = jwtUtil.generateToken(userDetails);
+        return ResponseEntity.ok(Map.of("token", token));
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
@@ -107,23 +117,22 @@ public class AuthController {
         String password = request.get("password");
 
         try {
-            // Authenticate the user
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password)
             );
 
-            // Get authenticated user details
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
-            //  Generate token with roles included
             String token = jwtUtil.generateToken(userDetails);
 
-            // Return the token in response
-            return ResponseEntity.ok(Map.of("token", token));
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
+            return ResponseEntity.ok(Map.of(
+                    "token", token,
+                    "id", user.getId()
+            ));
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).body("Invalid credentials");
         }
     }
-
 }

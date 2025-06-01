@@ -6,6 +6,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.workxlife.job_service.dto.JobDTO;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -15,6 +17,8 @@ public class JobController {
 
     @Autowired
     private JobService jobService;
+
+
 
     @GetMapping
     public ResponseEntity<List<Job>> getAllJobs() {
@@ -27,6 +31,13 @@ public class JobController {
         return ResponseEntity.ok(jobService.getJobById(id));
     }
 
+    @GetMapping("/by-employer/{employerId}")
+    public ResponseEntity<List<Job>> getJobsByEmployer(@PathVariable Long employerId) {
+        List<Job> jobs = jobService.getJobsByEmployer(employerId);
+        return ResponseEntity.ok(jobs);
+    }
+
+
     @GetMapping("/search")
     public ResponseEntity<List<Job>> searchJobs(
             @RequestParam(required = false) String title,
@@ -37,10 +48,13 @@ public class JobController {
         return ResponseEntity.ok(jobs);
     }
 
+
+
     @PostMapping
-    public ResponseEntity<Job> createJob(@Valid @RequestBody Job job) {
-        return ResponseEntity.ok(jobService.createJob(job));
+    public ResponseEntity<Job> createJob(@Valid @RequestBody JobDTO jobDTO) {
+        return ResponseEntity.ok(jobService.createJob(jobDTO));
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Job> updateJob(@PathVariable Long id,@Valid @RequestBody Job job) {

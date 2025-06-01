@@ -10,7 +10,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final String SECRET = "mysecretkeymysecretkeymysecretkey12345"; // must match auth-service
+    private final String SECRET = "mysecretkeymysecretkeymysecretkey12345";
 
     private final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 hours
 
@@ -35,4 +35,14 @@ public class JwtUtil {
             return false;
         }
     }
+
+    public Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+
 }

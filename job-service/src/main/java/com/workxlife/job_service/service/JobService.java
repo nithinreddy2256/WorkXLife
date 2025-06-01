@@ -1,5 +1,6 @@
 package com.workxlife.job_service.service;
-
+import com.workxlife.job_service.dto.JobDTO;
+import java.time.LocalDateTime;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.workxlife.job_service.dto.Notification;
 import com.workxlife.job_service.entity.Job;
@@ -9,6 +10,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.workxlife.job_service.util.JwtEmailExtractor;
+import com.workxlife.job_service.client.EmployerClient;
+
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -24,6 +27,9 @@ public class JobService {
 
     @Autowired
     private HttpServletRequest request;
+
+    @Autowired
+    private EmployerClient employerClient;
 
     public List<Job> getAllJobs() {
         return jobRepository.findAll();
@@ -45,28 +51,48 @@ public class JobService {
                 );
     }
 
-    public Job createJob(Job job) {
+    public Job createJob(JobDTO jobDTO) {
+
+//        if (!employerClient.employerExists(jobDTO.getPostedBy())) {
+//            throw new IllegalArgumentException("Invalid employer ID: " + jobDTO.getPostedBy());
+//        }
+
+        Job job = new Job();
+        job.setTitle(jobDTO.getTitle());
+        job.setDescription(jobDTO.getDescription());
+        job.setCompanyName(jobDTO.getCompanyName());
+        job.setLocation(jobDTO.getLocation());
+        job.setSalary(jobDTO.getSalary());
+        job.setEmploymentType(jobDTO.getEmploymentType());
+        job.setPostedBy(jobDTO.getPostedBy());
+        job.setCreatedAt(LocalDateTime.now());
+        job.setUpdatedAt(LocalDateTime.now());
+
         Job savedJob = jobRepository.save(job);
 
         try {
             String email = JwtEmailExtractor.extractEmail(request);
-
             Notification notification = new Notification();
-            notification.setRecipientId(101L); // (optional, if known)
-            notification.setRecipientEmail(email); // ✅ dynamic
+            notification.setRecipientId(101L); // optional
+            notification.setRecipientEmail(email);
             notification.setMessage("New job posted: " + savedJob.getTitle());
             notification.setType("EMAIL");
 
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(notification);
             rabbitTemplate.convertAndSend("notification.queue", json);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return savedJob;
     }
+
+    public List<Job> getJobsByEmployer(Long employerId) {
+        return jobRepository.findByPostedBy(employerId);
+    }
+
+
 
     public Job updateJob(Long id, Job jobDetails) {
         Job job = getJobById(id);

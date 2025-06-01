@@ -2,18 +2,11 @@ package com.workxlife.job_service.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "jobs")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Job {
 
     @Id
@@ -58,9 +51,14 @@ public class Job {
         this.updatedAt = LocalDateTime.now();
     }
 
+    // Getters and Setters
+
     public Long getId() {
         return id;
     }
+
+
+
 
     public void setId(Long id) {
         this.id = id;
@@ -98,19 +96,19 @@ public class Job {
         this.location = location;
     }
 
-    public java.math.BigDecimal getSalary() {
+    public BigDecimal getSalary() {
         return salary;
     }
 
-    public void setSalary(java.math.BigDecimal salary) {
+    public void setSalary(BigDecimal salary) {
         this.salary = salary;
     }
 
-    public com.workxlife.job_service.entity.EmploymentType getEmploymentType() {
+    public EmploymentType getEmploymentType() {
         return employmentType;
     }
 
-    public void setEmploymentType(com.workxlife.job_service.entity.EmploymentType employmentType) {
+    public void setEmploymentType(EmploymentType employmentType) {
         this.employmentType = employmentType;
     }
 
@@ -122,7 +120,19 @@ public class Job {
         this.postedBy = postedBy;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

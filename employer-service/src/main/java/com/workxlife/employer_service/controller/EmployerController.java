@@ -5,6 +5,8 @@ import com.workxlife.employer_service.service.EmployerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+
 
 import java.util.List;
 
@@ -18,6 +20,7 @@ public class EmployerController {
     public ResponseEntity<Employer> createEmployer(@RequestBody Employer employer) {
         return ResponseEntity.ok(employerService.createEmployer(employer));
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Employer> getEmployerById(@PathVariable Long id) {

@@ -21,12 +21,21 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.disable()) // ✅ Allow iframe/embed
+                )
                 .authorizeHttpRequests(auth -> auth
-                        //  Allow unauthenticated POST for registration
+                        //  Allow access to static image and resume files
+                        .requestMatchers("/uploads/**").permitAll()
 
+                        //  Allow public employee registration
                         .requestMatchers(HttpMethod.POST, "/api/employees").permitAll()
 
-                        // All other endpoints require authentication
+                        //  Allow internal service/employee access by email
+                        .requestMatchers(HttpMethod.GET, "/api/employees/email/**")
+                        .hasAnyAuthority("ROLE_INTERNAL_SERVICE", "ROLE_EMPLOYEE")
+
+                        //  Everything else must be authenticated
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -34,4 +43,6 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+
 }

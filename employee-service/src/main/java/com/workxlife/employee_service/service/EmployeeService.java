@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface EmployeeService {
 
@@ -17,5 +18,7 @@ public interface EmployeeService {
     List<Employee> searchEmployeesByFirstName(String firstName);
     List<Employee> searchEmployeesByDepartment(String department);
     Page<Employee> getAllEmployeesPaginated(Pageable pageable);
+    Employee uploadFiles(Long id, MultipartFile profileImage, MultipartFile resume);
+
 
 }

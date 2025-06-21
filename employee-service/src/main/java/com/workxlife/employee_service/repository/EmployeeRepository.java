@@ -26,5 +26,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     Page<Employee> findAll(Pageable pageable);
 
+    @Query("SELECT e FROM Employee e WHERE LOWER(e.skills) LIKE LOWER(CONCAT('%', :skill, '%'))")
+    List<Employee> findBySkillKeyword(@Param("skill") String skill);
 
+    List<Employee> findByExperienceYearsGreaterThanEqual(int years);
 }

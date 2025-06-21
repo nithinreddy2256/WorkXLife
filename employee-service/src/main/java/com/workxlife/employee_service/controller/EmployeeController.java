@@ -5,12 +5,13 @@ import com.workxlife.employee_service.service.EmployeeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/employees")
@@ -53,7 +54,6 @@ public class EmployeeController {
         }
     }
 
-
     @GetMapping("/email/{email}")
     public ResponseEntity<Employee> getEmployeeByEmail(@PathVariable String email) {
         return employeeService.getEmployeeByEmail(email)
@@ -78,6 +78,17 @@ public class EmployeeController {
     public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee updatedEmployee) {
         return ResponseEntity.ok(employeeService.updateEmployee(id, updatedEmployee));
     }
+
+    @PutMapping("/{id}/upload")
+    public ResponseEntity<Employee> uploadFiles(
+            @PathVariable Long id,
+            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
+            @RequestParam(value = "resume", required = false) MultipartFile resume) {
+
+        Employee updated = employeeService.uploadFiles(id, profileImage, resume);
+        return ResponseEntity.ok(updated);
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {

@@ -22,7 +22,7 @@ public class Application {
     @JoinColumn(name = "job_id", nullable = false)
     private Job job;
 
-    private Long applicantId;  // From employee-service
+    private Long applicantId;
 
     private String resumeUrl;
 
@@ -42,11 +42,13 @@ public class Application {
         return job;
     }
 
-
-
-
     @PrePersist
     protected void onApply() {
         this.appliedAt = LocalDateTime.now();
     }
+
+    public LocalDateTime getAppliedAt() {
+        return appliedAt;
+    }
+
 }

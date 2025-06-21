@@ -6,7 +6,11 @@ import com.workxlife.authentication_service.repository.RoleRepository;
 import com.workxlife.authentication_service.repository.UserRepository;
 import com.workxlife.authentication_service.security.JwtUtil;
 import com.workxlife.authentication_service.entity.User;
-
+import com.workxlife.authentication_service.dto.EmployeeDto;
+import com.workxlife.authentication_service.dto.AuthResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -122,17 +126,58 @@ public class AuthController {
             );
 
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String token = jwtUtil.generateToken(userDetails);
+            String token = jwtUtil.generateToken(userDetails); // Includes roles
 
             User user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-            return ResponseEntity.ok(Map.of(
-                    "token", token,
-                    "id", user.getId()
-            ));
+            Long employeeId = null;
+
+            if (user.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_EMPLOYEE"))) {
+                System.out.println("User has ROLE_EMPLOYEE. Trying to fetch employee ID...");
+
+                String internalToken = jwtUtil.generateTokenWithInternalRole(user.getUsername());
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Authorization", "Bearer " + internalToken);
+                HttpEntity<String> entity = new HttpEntity<>(headers);
+
+                String targetUrl = "http://localhost:8082/api/employees/email/" + user.getEmail();
+
+
+
+                System.out.println("Calling: " + targetUrl);
+
+                try {
+                    ResponseEntity<EmployeeDto> empResponse = restTemplate.exchange(
+                            targetUrl,
+                            HttpMethod.GET,
+                            entity,
+                            EmployeeDto.class
+                    );
+
+                    System.out.println("Status from employee-service: " + empResponse.getStatusCode());
+                    System.out.println("Response body from employee-service: " + empResponse.getBody());
+
+                    if (empResponse.getStatusCode().is2xxSuccessful() && empResponse.getBody() != null) {
+                        employeeId = empResponse.getBody().getId();
+                        System.out.println("Extracted employeeId: " + employeeId);
+                    } else {
+                        System.err.println("Employee response was not successful or body was null.");
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Exception while calling employee-service: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
+            }
+
+            return ResponseEntity.ok(new AuthResponse(token, user.getId(), employeeId));
+
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).body("Invalid credentials");
         }
     }
+
+
+
 }

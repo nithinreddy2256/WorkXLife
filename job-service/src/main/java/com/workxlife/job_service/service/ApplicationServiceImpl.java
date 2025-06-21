@@ -9,7 +9,10 @@ import com.workxlife.job_service.dto.Notification;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import com.workxlife.job_service.util.JwtEmailExtractor;
+import com.workxlife.job_service.entity.Job;
+import com.workxlife.job_service.repository.JobRepository;
 
+import java.time.LocalDateTime;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -24,6 +27,9 @@ public class ApplicationServiceImpl {
     private ApplicationRepository applicationRepository;
 
     @Autowired
+    private JobRepository jobRepository;
+
+    @Autowired
     private HttpServletRequest request;
 
     public List<Application> getApplicationsByJobId(Long jobId) {
@@ -35,20 +41,21 @@ public class ApplicationServiceImpl {
     }
 
     public Application applyForJob(Application application) {
+        if (application.getJob() == null || application.getJob().getId() == null) {
+            throw new IllegalArgumentException("Missing job ID in request.");
+        }
+
+        Long jobId = application.getJob().getId();
+
+        // Validate that job exists
+        jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found with ID: " + jobId));
+
         Application savedApplication = applicationRepository.save(application);
 
         try {
             String email = JwtEmailExtractor.extractEmail(request);
-
-            Notification notification = new Notification();
-            notification.setRecipientId(application.getApplicantId());
-            notification.setRecipientEmail(email);
-            notification.setMessage("You successfully applied for Job ID: " + application.getJob().getId());
-            notification.setType("EMAIL");
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            String json = objectMapper.writeValueAsString(notification);
-            rabbitTemplate.convertAndSend("notification.queue", json);
+            System.out.println("Application received from: " + email);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -56,9 +63,11 @@ public class ApplicationServiceImpl {
         return savedApplication;
     }
 
+
     public void deleteApplication(Long id) {
         Application application = applicationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Application not found with ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Application not found with ID: " + id));
         applicationRepository.delete(application);
     }
 }
+

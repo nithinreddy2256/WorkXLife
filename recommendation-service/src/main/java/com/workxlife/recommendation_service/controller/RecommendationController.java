@@ -27,10 +27,9 @@ public class RecommendationController {
     }
 
     @GetMapping("/{employeeId}")
-    public ResponseEntity<String> getRecommendations(@PathVariable Long employeeId,
-                                                     @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<List<JobDto>> getRecommendations(@PathVariable Long employeeId,
+                                                           @RequestHeader("Authorization") String authHeader) {
         try {
-            // ✅ Extract token from Authorization header
             String token = authHeader.replace("Bearer ", "");
 
             // Fetch employee profile
@@ -62,10 +61,11 @@ public class RecommendationController {
             // Send email notifications
             openAiService.sendRecommendationsAsNotifications(employee, recommendedJobs);
 
-            return ResponseEntity.ok("AI-powered job recommendations sent successfully!");
+
+            return ResponseEntity.ok(recommendedJobs);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.internalServerError().body("Error generating recommendations: " + e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

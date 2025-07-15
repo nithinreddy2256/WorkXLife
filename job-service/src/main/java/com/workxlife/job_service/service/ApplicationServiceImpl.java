@@ -11,6 +11,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import com.workxlife.job_service.util.JwtEmailExtractor;
 import com.workxlife.job_service.entity.Job;
 import com.workxlife.job_service.repository.JobRepository;
+import com.workxlife.job_service.entity.ApplicationStatus;
+
 
 import java.time.LocalDateTime;
 
@@ -61,6 +63,14 @@ public class ApplicationServiceImpl {
         }
 
         return savedApplication;
+    }
+
+    public void updateStatus(Long applicationId, ApplicationStatus status) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found with ID: " + applicationId));
+
+        application.setStatus(status);
+        applicationRepository.save(application);
     }
 
 

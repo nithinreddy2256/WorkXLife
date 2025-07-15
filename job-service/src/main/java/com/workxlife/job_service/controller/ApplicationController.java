@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.workxlife.job_service.dto.EmployeeDto;
 import com.workxlife.job_service.dto.ApplicationDetailsDto;
 import org.springframework.beans.factory.annotation.Qualifier;
+import com.workxlife.job_service.entity.ApplicationStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -69,7 +70,9 @@ public class ApplicationController {
                                 employee.getFirstName() + " " + employee.getLastName(),
                                 application.getAppliedAt(),
                                 application.getJob().getTitle(),
-                                application.getJob().getCompanyName()
+                                application.getJob().getCompanyName(),
+                                application.getStatus(),
+                                application.getId()
                         );
 
                     } catch (WebClientResponseException.NotFound e) {
@@ -104,4 +107,14 @@ public class ApplicationController {
         applicationService.deleteApplication(id);
         return ResponseEntity.ok("Application deleted successfully.");
     }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<String> updateApplicationStatus(
+            @PathVariable Long id,
+            @RequestParam("status") ApplicationStatus status
+    ) {
+        applicationService.updateStatus(id, status);
+        return ResponseEntity.ok("Application status updated to " + status);
+    }
+
 }

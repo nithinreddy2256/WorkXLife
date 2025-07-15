@@ -21,6 +21,19 @@ public class EmployerController {
         return ResponseEntity.ok(employerService.createEmployer(employer));
     }
 
+    @PostMapping("/profile")
+    public ResponseEntity<Employer> saveProfile(@RequestBody Employer employer) {
+        Employer saved = employerService.saveEmployer(employer);
+        return ResponseEntity.ok(saved);
+    }
+
+    @GetMapping("/profile/{id}")
+    public ResponseEntity<Employer> getProfile(@PathVariable Long id) {
+        Employer employer = employerService.getEmployerById(id);
+        return ResponseEntity.ok(employer);
+    }
+
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Employer> getEmployerById(@PathVariable Long id) {

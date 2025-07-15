@@ -11,6 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.workxlife.job_service.util.JwtEmailExtractor;
 import com.workxlife.job_service.client.EmployerClient;
+import com.workxlife.job_service.entity.ApplicationStatus;
+import com.workxlife.job_service.entity.Application;
+import com.workxlife.job_service.repository.ApplicationRepository;
+
 
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +25,10 @@ public class JobService {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private ApplicationRepository applicationRepository;
+
 
     @Autowired
     private JobRepository jobRepository;
@@ -91,6 +99,7 @@ public class JobService {
     public List<Job> getJobsByEmployer(Long employerId) {
         return jobRepository.findByPostedBy(employerId);
     }
+
 
 
 

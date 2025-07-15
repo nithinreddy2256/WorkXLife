@@ -10,5 +10,7 @@ public interface EmployerService {
     List<Employer> getAllEmployers();
     Employer updateEmployer(Long id, Employer employer);
     void deleteEmployer(Long id);
+    Employer saveEmployer(Employer employer);
+
 }
 

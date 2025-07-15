@@ -30,7 +30,9 @@ public class Application {
     private String coverLetter;
 
     @Enumerated(EnumType.STRING)
-    private ApplicationStatus status;
+    @Column(nullable = false)
+    private ApplicationStatus status = ApplicationStatus.PENDING;
+
 
     private LocalDateTime appliedAt;
 
@@ -50,5 +52,19 @@ public class Application {
     public LocalDateTime getAppliedAt() {
         return appliedAt;
     }
+
+    public ApplicationStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ApplicationStatus status) {
+        this.status = status;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+
 
 }

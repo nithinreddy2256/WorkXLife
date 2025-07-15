@@ -19,11 +19,7 @@ public class EmployerServiceImpl implements EmployerService {
         return employerRepository.save(employer);
     }
 
-    @Override
-    public Employer getEmployerById(Long id) {
-        return employerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Employer not found with id: " + id));
-    }
+
 
     @Override
     public List<Employer> getAllEmployers() {
@@ -33,16 +29,41 @@ public class EmployerServiceImpl implements EmployerService {
     @Override
     public Employer updateEmployer(Long id, Employer employer) {
         Employer existing = getEmployerById(id);
+
         existing.setCompanyName(employer.getCompanyName());
-        existing.setEmail(employer.getEmail());
-        existing.setPhone(employer.getPhone());
+        existing.setIndustry(employer.getIndustry());
         existing.setWebsite(employer.getWebsite());
+        existing.setLocation(employer.getLocation());
+        existing.setSize(employer.getSize());
+        existing.setEstablishedYear(employer.getEstablishedYear());
+        existing.setAbout(employer.getAbout());
+
+        existing.setContactName(employer.getContactName());
+        existing.setContactEmail(employer.getContactEmail());
+        existing.setContactPhone(employer.getContactPhone());
+
+        existing.setRecruiterName(employer.getRecruiterName());
+        existing.setRecruiterRole(employer.getRecruiterRole());
+        existing.setRecruiterBio(employer.getRecruiterBio());
+
         return employerRepository.save(existing);
     }
+
 
     @Override
     public void deleteEmployer(Long id) {
         Employer employer = getEmployerById(id);
         employerRepository.delete(employer);
+    }
+
+    @Override
+    public Employer saveEmployer(Employer employer) {
+        return employerRepository.save(employer);
+    }
+
+    @Override
+    public Employer getEmployerById(Long id) {
+        return employerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employer not found"));
     }
 }

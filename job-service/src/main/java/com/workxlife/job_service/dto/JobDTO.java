@@ -69,6 +69,34 @@ public class JobDTO {
         return workMode;
     }
 
+    public String getExperienceLevel() {
+        return experienceLevel;
+    }
+
+    public Integer getMinExperienceYears() {
+        return minExperienceYears;
+    }
+
+    public Integer getMaxExperienceYears() {
+        return maxExperienceYears;
+    }
+
+    public String getRoleSummary() {
+        return roleSummary;
+    }
+
+    public List<String> getKeySkills() {
+        return keySkills;
+    }
+
+    public List<String> getResponsibilities() {
+        return responsibilities;
+    }
+
+    public List<String> getBenefits() {
+        return benefits;
+    }
+
     public Long getPostedBy() {
         return postedBy;
     }
@@ -111,6 +139,34 @@ public class JobDTO {
 
     public void setWorkMode(WorkMode workMode) {
         this.workMode = workMode;
+    }
+
+    public void setExperienceLevel(String experienceLevel) {
+        this.experienceLevel = experienceLevel;
+    }
+
+    public void setMinExperienceYears(Integer minExperienceYears) {
+        this.minExperienceYears = minExperienceYears;
+    }
+
+    public void setMaxExperienceYears(Integer maxExperienceYears) {
+        this.maxExperienceYears = maxExperienceYears;
+    }
+
+    public void setRoleSummary(String roleSummary) {
+        this.roleSummary = roleSummary;
+    }
+
+    public void setKeySkills(List<String> keySkills) {
+        this.keySkills = keySkills;
+    }
+
+    public void setResponsibilities(List<String> responsibilities) {
+        this.responsibilities = responsibilities;
+    }
+
+    public void setBenefits(List<String> benefits) {
+        this.benefits = benefits;
     }
 
     public void setPostedBy(Long postedBy) {

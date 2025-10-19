@@ -1,11 +1,14 @@
 package com.workxlife.job_service.dto;
 
 import com.workxlife.job_service.entity.EmploymentType;
+import com.workxlife.job_service.entity.WorkMode;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,6 +23,14 @@ public class JobDTO {
     private String location;
     private BigDecimal salary;
     private EmploymentType employmentType;
+    private WorkMode workMode;
+    private String experienceLevel;
+    private Integer minExperienceYears;
+    private Integer maxExperienceYears;
+    private String roleSummary;
+    private List<String> keySkills = new ArrayList<>();
+    private List<String> responsibilities = new ArrayList<>();
+    private List<String> benefits = new ArrayList<>();
 
     @NotNull(message = "PostedBy is required")
     private Long postedBy;
@@ -52,6 +63,10 @@ public class JobDTO {
 
     public EmploymentType getEmploymentType() {
         return employmentType;
+    }
+
+    public WorkMode getWorkMode() {
+        return workMode;
     }
 
     public Long getPostedBy() {
@@ -92,6 +107,10 @@ public class JobDTO {
 
     public void setEmploymentType(EmploymentType employmentType) {
         this.employmentType = employmentType;
+    }
+
+    public void setWorkMode(WorkMode workMode) {
+        this.workMode = workMode;
     }
 
     public void setPostedBy(Long postedBy) {

@@ -1,15 +1,14 @@
 package com.workxlife.job_service.client;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.workxlife.job_service.dto.EmployerSummaryDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import java.util.Map;
+
 import java.util.HashMap;
-
-
+import java.util.Map;
 
 @Service
 public class EmployerClient {
@@ -63,5 +62,32 @@ public class EmployerClient {
             return false;
         }
     }
-}
 
+    public EmployerSummaryDTO fetchEmployerDetails(Long employerId) {
+        try {
+            String token = fetchInternalToken();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + token);
+
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<EmployerSummaryDTO> response = restTemplate.exchange(
+                    "http://employer-service/api/employers/profile/" + employerId,
+                    HttpMethod.GET,
+                    entity,
+                    EmployerSummaryDTO.class
+            );
+
+            return response.getBody();
+        } catch (HttpClientErrorException.NotFound e) {
+            return null;
+        } catch (HttpClientErrorException.Forbidden e) {
+            System.err.println("403 Forbidden from employer-service while fetching employer details");
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+}

@@ -1,12 +1,13 @@
 package com.workxlife.job_service.controller;
 
+import com.workxlife.job_service.dto.JobDTO;
+import com.workxlife.job_service.dto.JobDetailsResponse;
 import com.workxlife.job_service.entity.Job;
 import com.workxlife.job_service.service.JobService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.workxlife.job_service.dto.JobDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
@@ -29,6 +30,15 @@ public class JobController {
     @GetMapping("/{id}")
     public ResponseEntity<Job> getJobById(@PathVariable Long id) {
         return ResponseEntity.ok(jobService.getJobById(id));
+    }
+
+    @GetMapping("/{id}/details")
+    public ResponseEntity<JobDetailsResponse> getJobDetails(
+            @PathVariable Long id,
+            @RequestParam(value = "employeeId", required = false) Long employeeId,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader
+    ) {
+        return ResponseEntity.ok(jobService.getJobDetails(id, employeeId, authorizationHeader));
     }
 
     @GetMapping("/by-employer/{employerId}")

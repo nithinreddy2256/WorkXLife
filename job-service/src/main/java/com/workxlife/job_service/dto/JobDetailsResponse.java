@@ -1,94 +1,37 @@
-package com.workxlife.job_service.entity;
+package com.workxlife.job_service.dto;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import com.workxlife.job_service.entity.EmploymentType;
+import com.workxlife.job_service.entity.WorkMode;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "jobs")
-public class Job {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class JobDetailsResponse {
     private Long id;
-
-    @NotBlank(message = "Job title is required")
     private String title;
-
-    @NotBlank(message = "Job description is required")
-    @Column(columnDefinition = "TEXT")
     private String description;
-
-    @NotBlank(message = "Company name is required")
     private String companyName;
-
-    @NotBlank(message = "Location is required")
     private String location;
-
-    @NotNull(message = "Salary is required")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Salary must be greater than zero")
     private BigDecimal salary;
-
-    @NotNull(message = "Employment type is required")
-    @Enumerated(EnumType.STRING)
     private EmploymentType employmentType;
-
-    @Enumerated(EnumType.STRING)
     private WorkMode workMode;
-
     private String experienceLevel;
-
     private Integer minExperienceYears;
-
     private Integer maxExperienceYears;
-
-    @Column(columnDefinition = "TEXT")
     private String roleSummary;
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "job_key_skills", joinColumns = @JoinColumn(name = "job_id"))
-    @Column(name = "skill")
     private List<String> keySkills = new ArrayList<>();
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "job_responsibilities", joinColumns = @JoinColumn(name = "job_id"))
-    @Column(name = "responsibility", columnDefinition = "TEXT")
     private List<String> responsibilities = new ArrayList<>();
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "job_benefits", joinColumns = @JoinColumn(name = "job_id"))
-    @Column(name = "benefit")
     private List<String> benefits = new ArrayList<>();
-
-    @NotNull(message = "PostedBy is required")
-    private Long postedBy;
-
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    // Getters and Setters
+    private EmployerSummaryDTO employer;
+    private JobMatchBreakdown matchBreakdown;
 
     public Long getId() {
         return id;
     }
-
-
-
 
     public void setId(Long id) {
         this.id = id;
@@ -206,14 +149,6 @@ public class Job {
         this.benefits = benefits != null ? new ArrayList<>(benefits) : new ArrayList<>();
     }
 
-    public Long getPostedBy() {
-        return postedBy;
-    }
-
-    public void setPostedBy(Long postedBy) {
-        this.postedBy = postedBy;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -229,4 +164,21 @@ public class Job {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    public EmployerSummaryDTO getEmployer() {
+        return employer;
+    }
+
+    public void setEmployer(EmployerSummaryDTO employer) {
+        this.employer = employer;
+    }
+
+    public JobMatchBreakdown getMatchBreakdown() {
+        return matchBreakdown;
+    }
+
+    public void setMatchBreakdown(JobMatchBreakdown matchBreakdown) {
+        this.matchBreakdown = matchBreakdown;
+    }
 }
+
